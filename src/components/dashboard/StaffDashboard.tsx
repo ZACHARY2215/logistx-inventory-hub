@@ -9,15 +9,27 @@ import {
   Edit,
   Eye
 } from "lucide-react";
+import { useInventory } from "@/hooks/useInventory";
 
 interface StaffDashboardProps {
-  inventoryData: any[];
   onNavigate: (page: string) => void;
 }
 
-export const StaffDashboard = ({ inventoryData, onNavigate }: StaffDashboardProps) => {
+export const StaffDashboard = ({ onNavigate }: StaffDashboardProps) => {
+  const { items: inventoryData, lowStockItems, totalValue, loading } = useInventory();
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Package className="h-8 w-8 animate-pulse mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   const totalItems = inventoryData.length;
-  const lowStockItems = inventoryData.filter(item => item.quantity < item.minQuantity);
   const recentOrders = 12; // Mock data
   const completedTasks = 8; // Mock data
 

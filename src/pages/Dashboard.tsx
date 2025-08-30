@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AdminDashboard } from "@/components/dashboard/AdminDashboard";
 import { StaffDashboard } from "@/components/dashboard/StaffDashboard";
 import { InventoryManagement } from "@/components/inventory/InventoryManagement";
-import { mockInventoryData, InventoryItem } from "@/data/mockData";
+import { useInventory } from "@/hooks/useInventory";
 
 interface User {
   id: string;
@@ -19,51 +19,25 @@ interface DashboardProps {
 
 export const Dashboard = ({ user, onLogout }: DashboardProps) => {
   const [currentPage, setCurrentPage] = useState('dashboard');
-  const [inventoryData, setInventoryData] = useState<InventoryItem[]>(mockInventoryData);
-
-  // Load data from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('logistx-inventory');
-    if (saved) {
-      try {
-        setInventoryData(JSON.parse(saved));
-      } catch (error) {
-        console.error('Error loading saved data:', error);
-      }
-    }
-  }, []);
-
-  // Save data to localStorage when inventory changes
-  useEffect(() => {
-    localStorage.setItem('logistx-inventory', JSON.stringify(inventoryData));
-  }, [inventoryData]);
+  const { items: inventoryData } = useInventory();
 
   const handleNavigate = (page: string) => {
     setCurrentPage(page);
-  };
-
-  const handleUpdateInventory = (newData: InventoryItem[]) => {
-    setInventoryData(newData);
   };
 
   const renderContent = () => {
     switch (currentPage) {
       case 'dashboard':
         return user.role === 'admin' ? (
-          <AdminDashboard inventoryData={inventoryData} />
+          <AdminDashboard />
         ) : (
           <StaffDashboard 
-            inventoryData={inventoryData}
             onNavigate={handleNavigate}
           />
         );
       case 'inventory':
         return (
-          <InventoryManagement
-            inventoryData={inventoryData}
-            onUpdateInventory={handleUpdateInventory}
-            userRole={user.role}
-          />
+          <InventoryManagement userRole={user.role} />
         );
       case 'orders':
         return (

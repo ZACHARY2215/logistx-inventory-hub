@@ -9,15 +9,23 @@ import {
   DollarSign,
   ShoppingCart
 } from "lucide-react";
+import { useInventory } from "@/hooks/useInventory";
 
-interface AdminDashboardProps {
-  inventoryData: any[];
-}
-
-export const AdminDashboard = ({ inventoryData }: AdminDashboardProps) => {
+export const AdminDashboard = () => {
+  const { items: inventoryData, categories, suppliers, lowStockItems, totalValue, loading } = useInventory();
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Package className="h-8 w-8 animate-pulse mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+  
   const totalItems = inventoryData.length;
-  const lowStockItems = inventoryData.filter(item => item.quantity < item.minQuantity);
-  const totalValue = inventoryData.reduce((sum, item) => sum + (item.quantity * item.price), 0);
   const totalUsers = 25; // Mock data
   const totalOrders = 147; // Mock data
   const monthlyRevenue = 28450; // Mock data
