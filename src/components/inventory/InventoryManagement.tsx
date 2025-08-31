@@ -61,7 +61,8 @@ export const InventoryManagement = ({
   
   const { items, categories, suppliers, addItem, updateItem, deleteItem } = useInventory();
 
-  const categoriesList = categories.map(cat => cat.name);
+  const categoriesList = categories.map(cat => ({ id: cat.id, name: cat.name }));
+  const suppliersList = suppliers.map(sup => ({ id: sup.id, name: sup.name }));
   
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -384,8 +385,8 @@ export const InventoryManagement = ({
                 <Input
                   id="minQuantity"
                   type="number"
-                  value={formData.minQuantity}
-                  onChange={(e) => setFormData({ ...formData, minQuantity: e.target.value })}
+                  value={formData.min_quantity}
+                  onChange={(e) => setFormData({ ...formData, min_quantity: e.target.value })}
                   placeholder="10"
                 />
               </div>
@@ -485,8 +486,8 @@ export const InventoryManagement = ({
                 <Input
                   id="edit-minQuantity"
                   type="number"
-                  value={formData.minQuantity}
-                  onChange={(e) => setFormData({ ...formData, minQuantity: e.target.value })}
+                  value={formData.min_quantity}
+                  onChange={(e) => setFormData({ ...formData, min_quantity: e.target.value })}
                   placeholder="10"
                 />
               </div>

@@ -10,9 +10,16 @@ import {
   ShoppingCart
 } from "lucide-react";
 import { useInventory } from "@/hooks/useInventory";
+import { useUsers } from "@/hooks/useUsers";
+import { useTransactions } from "@/hooks/useTransactions";
+import { DatabaseStatus } from "@/components/ui/DatabaseStatus";
 
 export const AdminDashboard = () => {
-  const { items: inventoryData, categories, suppliers, lowStockItems, totalValue, loading } = useInventory();
+  const { items: inventoryData, categories, suppliers, lowStockItems, totalValue, loading: inventoryLoading } = useInventory();
+  const { users, totalUsers, loading: usersLoading } = useUsers();
+  const { transactions, transactionStats, loading: transactionsLoading } = useTransactions();
+  
+  const loading = inventoryLoading || usersLoading || transactionsLoading;
   
   if (loading) {
     return (
@@ -26,9 +33,8 @@ export const AdminDashboard = () => {
   }
   
   const totalItems = inventoryData.length;
-  const totalUsers = 25; // Mock data
-  const totalOrders = 147; // Mock data
-  const monthlyRevenue = 28450; // Mock data
+  const totalOrders = transactionStats.total;
+  const monthlyRevenue = totalValue * 0.1; // Estimate 10% of inventory value as monthly revenue
 
   const stats = [
     {
@@ -119,7 +125,7 @@ export const AdminDashboard = () => {
         })}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-3">
         {/* Low Stock Alerts */}
         <Card>
           <CardHeader>
@@ -150,7 +156,7 @@ export const AdminDashboard = () => {
                       {item.quantity} left
                     </Badge>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Min: {item.minQuantity}
+                      Min: {item.min_quantity}
                     </p>
                   </div>
                 </div>
@@ -196,6 +202,9 @@ export const AdminDashboard = () => {
             })}
           </CardContent>
         </Card>
+
+        {/* Database Status */}
+        <DatabaseStatus />
       </div>
     </div>
   );

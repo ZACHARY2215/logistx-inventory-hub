@@ -10,13 +10,17 @@ import {
   Eye
 } from "lucide-react";
 import { useInventory } from "@/hooks/useInventory";
+import { useTransactions } from "@/hooks/useTransactions";
 
 interface StaffDashboardProps {
   onNavigate: (page: string) => void;
 }
 
 export const StaffDashboard = ({ onNavigate }: StaffDashboardProps) => {
-  const { items: inventoryData, lowStockItems, totalValue, loading } = useInventory();
+  const { items: inventoryData, lowStockItems, totalValue, loading: inventoryLoading } = useInventory();
+  const { transactionStats, loading: transactionsLoading } = useTransactions();
+  
+  const loading = inventoryLoading || transactionsLoading;
   
   if (loading) {
     return (
@@ -30,8 +34,8 @@ export const StaffDashboard = ({ onNavigate }: StaffDashboardProps) => {
   }
 
   const totalItems = inventoryData.length;
-  const recentOrders = 12; // Mock data
-  const completedTasks = 8; // Mock data
+  const recentOrders = transactionStats.today;
+  const completedTasks = transactionStats.adds + transactionStats.adjustments;
 
   const stats = [
     {
@@ -174,15 +178,15 @@ export const StaffDashboard = ({ onNavigate }: StaffDashboardProps) => {
                 <div>
                   <p className="font-medium">{item.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    SKU: {item.sku} • Category: {item.category}
+                    SKU: {item.sku} • Category: {item.category?.name || 'N/A'}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold">Qty: {item.quantity}</p>
                   <Badge 
-                    variant={item.quantity < item.minQuantity ? "destructive" : "secondary"}
+                    variant={item.quantity < item.min_quantity ? "destructive" : "secondary"}
                   >
-                    {item.quantity < item.minQuantity ? "Low Stock" : "In Stock"}
+                    {item.quantity < item.min_quantity ? "Low Stock" : "In Stock"}
                   </Badge>
                 </div>
               </div>

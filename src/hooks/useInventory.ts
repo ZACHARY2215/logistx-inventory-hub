@@ -105,6 +105,20 @@ export const useInventory = () => {
         .select();
 
       if (error) throw error;
+
+      // Create transaction record for new item
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && data && data[0]) {
+        await supabase.from('inventory_transactions').insert({
+          item_id: data[0].id,
+          user_id: user.id,
+          transaction_type: 'create',
+          quantity_change: 0,
+          previous_quantity: 0,
+          new_quantity: item.quantity,
+          notes: `New item created with initial quantity of ${item.quantity}`
+        });
+      }
       
       toast.success('Item added successfully!');
       await fetchItems();
@@ -118,12 +132,36 @@ export const useInventory = () => {
 
   const updateItem = async (id: string, updates: Partial<InventoryItem>) => {
     try {
+      // Get current item to track quantity changes
+      const currentItem = items.find(item => item.id === id);
+      if (!currentItem) throw new Error('Item not found');
+
       const { error } = await supabase
         .from('inventory_items')
         .update(updates)
         .eq('id', id);
 
       if (error) throw error;
+
+      // Create transaction record for quantity changes
+      if (updates.quantity !== undefined && updates.quantity !== currentItem.quantity) {
+        const quantityChange = updates.quantity - currentItem.quantity;
+        const transactionType = quantityChange > 0 ? 'add' : 'remove';
+        
+        // Get current user ID from auth
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('inventory_transactions').insert({
+            item_id: id,
+            user_id: user.id,
+            transaction_type,
+            quantity_change: Math.abs(quantityChange),
+            previous_quantity: currentItem.quantity,
+            new_quantity: updates.quantity,
+            notes: `Quantity ${transactionType === 'add' ? 'increased' : 'decreased'} from ${currentItem.quantity} to ${updates.quantity}`
+          });
+        }
+      }
       
       toast.success('Item updated successfully!');
       await fetchItems();
@@ -137,12 +175,30 @@ export const useInventory = () => {
 
   const deleteItem = async (id: string) => {
     try {
+      // Get current item to track deletion
+      const currentItem = items.find(item => item.id === id);
+      if (!currentItem) throw new Error('Item not found');
+
       const { error } = await supabase
         .from('inventory_items')
         .delete()
         .eq('id', id);
 
       if (error) throw error;
+
+      // Create transaction record for deleted item
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('inventory_transactions').insert({
+          item_id: id,
+          user_id: user.id,
+          transaction_type: 'delete',
+          quantity_change: 0,
+          previous_quantity: currentItem.quantity,
+          new_quantity: 0,
+          notes: `Item deleted from inventory`
+        });
+      }
       
       toast.success('Item deleted successfully!');
       await fetchItems();
