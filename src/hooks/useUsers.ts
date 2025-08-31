@@ -50,7 +50,8 @@ export const useUsers = () => {
         setUsers(getDemoUsers());
         return;
       }
-      setUsers(data || getDemoUsers());
+      // Type cast to handle the string role type from database
+      setUsers((data as any) || getDemoUsers());
     } catch (error: unknown) {
       console.warn('Users connection failed, using demo data:', error);
       setUsers(getDemoUsers());

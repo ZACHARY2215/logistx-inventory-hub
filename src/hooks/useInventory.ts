@@ -1,37 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
-export interface InventoryItem {
-  id: string;
-  name: string;
-  sku: string;
-  category_id: string;
-  supplier_id: string;
-  quantity: number;
-  min_quantity: number;
-  price: number;
-  description?: string;
-  created_at: string;
-  updated_at: string;
-  // Joined data
-  category?: { name: string };
-  supplier?: { name: string };
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  description?: string;
-}
-
-export interface Supplier {
-  id: string;
-  name: string;
-  contact_email?: string;
-  contact_phone?: string;
-  address?: string;
-}
+import type { InventoryItem, Category, Supplier } from '@/types/inventory';
 
 // Demo data for when database is not accessible
 const getDemoItems = (): InventoryItem[] => [
@@ -46,57 +16,29 @@ const getDemoItems = (): InventoryItem[] => [
     price: 1999.99,
     description: 'Professional laptop for development and design work',
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    category: { name: 'Electronics' },
-    supplier: { name: 'Apple Inc.' }
-  },
-  {
-    id: 'demo-2',
-    name: 'Office Chair Ergonomic',
-    sku: 'FURN-CHAIR-002',
-    category_id: 'demo-cat-2',
-    supplier_id: 'demo-sup-2',
-    quantity: 12,
-    min_quantity: 10,
-    price: 299.99,
-    description: 'Ergonomic office chair with lumbar support',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    category: { name: 'Furniture' },
-    supplier: { name: 'Herman Miller' }
-  },
-  {
-    id: 'demo-3',
-    name: 'Wireless Mouse',
-    sku: 'COMP-MOUSE-003',
-    category_id: 'demo-cat-3',
-    supplier_id: 'demo-sup-3',
-    quantity: 150,
-    min_quantity: 20,
-    price: 49.99,
-    description: 'Wireless optical mouse with precision tracking',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    category: { name: 'Computer Accessories' },
-    supplier: { name: 'Logitech' }
+    updated_at: new Date().toISOString()
   }
 ];
 
 const getDemoCategories = (): Category[] => [
-  { id: 'demo-cat-1', name: 'Electronics', description: 'Electronic devices and components' },
-  { id: 'demo-cat-2', name: 'Furniture', description: 'Office and workspace furniture' },
-  { id: 'demo-cat-3', name: 'Computer Accessories', description: 'Computer peripherals and accessories' },
-  { id: 'demo-cat-4', name: 'Office Equipment', description: 'General office equipment' },
-  { id: 'demo-cat-5', name: 'Appliances', description: 'Kitchen and office appliances' },
-  { id: 'demo-cat-6', name: 'Accessories', description: 'General accessories and supplies' }
+  { 
+    id: 'demo-cat-1', 
+    name: 'Electronics', 
+    description: 'Electronic devices and components',
+    created_at: new Date().toISOString()
+  }
 ];
 
 const getDemoSuppliers = (): Supplier[] => [
-  { id: 'demo-sup-1', name: 'Apple Inc.', contact_email: 'business@apple.com', contact_phone: '1-800-APL-CARE', address: 'Cupertino, CA' },
-  { id: 'demo-sup-2', name: 'Herman Miller', contact_email: 'sales@hermanmiller.com', contact_phone: '1-800-646-4400', address: 'Zeeland, MI' },
-  { id: 'demo-sup-3', name: 'Logitech', contact_email: 'business@logitech.com', contact_phone: '1-646-454-3200', address: 'Newark, CA' },
-  { id: 'demo-sup-4', name: 'IKEA', contact_email: 'business@ikea.com', contact_phone: '1-888-888-4532', address: 'Conshohocken, PA' },
-  { id: 'demo-sup-5', name: 'Dell', contact_email: 'sales@dell.com', contact_phone: '1-800-915-3355', address: 'Round Rock, TX' }
+  { 
+    id: 'demo-sup-1', 
+    name: 'Apple Inc.', 
+    contact_email: 'business@apple.com', 
+    contact_phone: '1-800-APL-CARE', 
+    address: 'Cupertino, CA',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
 ];
 
 export const useInventory = () => {
@@ -118,11 +60,10 @@ export const useInventory = () => {
 
       if (error) {
         console.warn('Database fetch failed, using demo data:', error);
-        // Provide demo data when database is not accessible
         setItems(getDemoItems());
         return;
       }
-      setItems(data || getDemoItems());
+      setItems((data as any) || getDemoItems());
     } catch (error: unknown) {
       console.warn('Database connection failed, using demo data:', error);
       setItems(getDemoItems());
@@ -167,7 +108,7 @@ export const useInventory = () => {
     }
   };
 
-  const addItem = async (item: Omit<InventoryItem, 'id' | 'created_at' | 'updated_at'>) => {
+  const addItem = async (item: any) => {
     try {
       const { data, error } = await supabase
         .from('inventory_items')
@@ -209,7 +150,7 @@ export const useInventory = () => {
     }
   };
 
-  const updateItem = async (id: string, updates: Partial<InventoryItem>) => {
+  const updateItem = async (id: string, updates: any) => {
     try {
       // Get current item to track quantity changes
       const currentItem = items.find(item => item.id === id);
@@ -233,7 +174,7 @@ export const useInventory = () => {
           await supabase.from('inventory_transactions').insert({
             item_id: id,
             user_id: user.id,
-            transaction_type,
+            transaction_type: transactionType,
             quantity_change: Math.abs(quantityChange),
             previous_quantity: currentItem.quantity,
             new_quantity: updates.quantity,

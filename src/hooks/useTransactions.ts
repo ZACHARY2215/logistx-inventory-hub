@@ -67,7 +67,8 @@ export const useTransactions = () => {
         setTransactions(getDemoTransactions());
         return;
       }
-      setTransactions(data || getDemoTransactions());
+      // Type cast to handle the string transaction_type from database
+      setTransactions((data as any) || getDemoTransactions());
     } catch (error: unknown) {
       console.warn('Transactions connection failed, using demo data:', error);
       setTransactions(getDemoTransactions());

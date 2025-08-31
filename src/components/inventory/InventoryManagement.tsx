@@ -31,6 +31,7 @@ import {
   Upload,
   AlertTriangle
 } from "lucide-react";
+import type { InventoryItem, Category, Supplier } from "@/types/inventory";
 
 interface InventoryManagementProps {
   inventoryData: InventoryItem[];
@@ -66,8 +67,8 @@ export const InventoryManagement = ({
   const displayCategories = categories || [];
   const displaySuppliers = suppliers || [];
 
-  const categoriesList = displayCategories.map(cat => ({ id: cat.id, name: cat.name }));
-  const suppliersList = displaySuppliers.map(sup => ({ id: sup.id, name: sup.name }));
+  const categoriesList = displayCategories.map(cat => cat.name);
+  const suppliersList = displaySuppliers.map(sup => sup.name);
   
   const filteredItems = displayItems.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -246,9 +247,9 @@ export const InventoryManagement = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all" className="font-medium">All Categories</SelectItem>
-                {categoriesList.map(category => (
-                  <SelectItem key={category} value={category} className="font-medium">
-                    {category}
+                {categoriesList.map(categoryName => (
+                  <SelectItem key={categoryName} value={categoryName} className="font-medium">
+                    {categoryName}
                   </SelectItem>
                 ))}
               </SelectContent>

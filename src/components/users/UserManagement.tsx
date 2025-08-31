@@ -73,7 +73,7 @@ export const UserManagement = ({ userRole }: UserManagementProps) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setUsers(data || []);
+      setUsers((data as any) || []);
     } catch (error: unknown) {
       toast.error('Failed to fetch users');
       console.error('Error fetching users:', error);
