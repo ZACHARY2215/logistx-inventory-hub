@@ -5,6 +5,7 @@ import { StaffDashboard } from "@/components/dashboard/StaffDashboard";
 import { InventoryManagement } from "@/components/inventory/InventoryManagement";
 import { ReportsManagement } from "@/components/reports/ReportsManagement";
 import { UserManagement } from "@/components/users/UserManagement";
+import { OrdersManagement } from "@/components/orders/OrdersManagement";
 import { AnalyticsDashboard } from "@/components/analytics/AnalyticsDashboard";
 import { useInventory } from "@/hooks/useInventory";
 
@@ -48,10 +49,7 @@ export const Dashboard = ({ user, onLogout }: DashboardProps) => {
         );
       case 'orders':
         return (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-semibold mb-2">Orders Management</h3>
-            <p className="text-muted-foreground">Coming soon - Order processing and management</p>
-          </div>
+          <OrdersManagement userRole={user.role} />
         );
       case 'reports':
         return (
