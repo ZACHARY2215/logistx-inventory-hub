@@ -3,6 +3,8 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { AdminDashboard } from "@/components/dashboard/AdminDashboard";
 import { StaffDashboard } from "@/components/dashboard/StaffDashboard";
 import { InventoryManagement } from "@/components/inventory/InventoryManagement";
+import { ReportsManagement } from "@/components/reports/ReportsManagement";
+import { UserManagement } from "@/components/users/UserManagement";
 import { useInventory } from "@/hooks/useInventory";
 
 interface User {
@@ -37,7 +39,11 @@ export const Dashboard = ({ user, onLogout }: DashboardProps) => {
         );
       case 'inventory':
         return (
-          <InventoryManagement userRole={user.role} />
+          <InventoryManagement 
+            inventoryData={inventoryData}
+            onUpdateInventory={() => {}} // This will be handled by the useInventory hook
+            userRole={user.role}
+          />
         );
       case 'orders':
         return (
@@ -48,17 +54,11 @@ export const Dashboard = ({ user, onLogout }: DashboardProps) => {
         );
       case 'reports':
         return (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-semibold mb-2">Reports & Analytics</h3>
-            <p className="text-muted-foreground">Coming soon - Detailed reporting and exports</p>
-          </div>
+          <ReportsManagement userRole={user.role} />
         );
       case 'users':
         return (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-semibold mb-2">User Management</h3>
-            <p className="text-muted-foreground">Coming soon - Staff and admin account management</p>
-          </div>
+          <UserManagement userRole={user.role} />
         );
       case 'analytics':
         return (

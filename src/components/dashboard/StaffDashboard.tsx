@@ -92,8 +92,8 @@ export const StaffDashboard = ({ onNavigate }: StaffDashboardProps) => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Staff Dashboard</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-3xl font-bold tracking-tight text-foreground">Staff Dashboard</h2>
+        <p className="text-muted-foreground font-medium">
           Manage inventory and process orders efficiently
         </p>
       </div>

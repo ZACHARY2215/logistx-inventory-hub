@@ -85,9 +85,10 @@ export const useAuth = () => {
       }
       
       return { success: false, error: 'Login failed' };
-    } catch (error: any) {
-      toast.error(error.message || 'Login failed');
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -113,9 +114,10 @@ export const useAuth = () => {
       
       toast.success('Account created successfully!');
       return { success: true };
-    } catch (error: any) {
-      toast.error(error.message || 'Signup failed');
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Signup failed';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -131,8 +133,9 @@ export const useAuth = () => {
       
       toast.success('Successfully signed out!');
       window.location.href = '/';
-    } catch (error: any) {
-      toast.error(error.message || 'Signout failed');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Signout failed';
+      toast.error(errorMessage);
     }
   };
 

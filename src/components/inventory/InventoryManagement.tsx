@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { useInventory } from "@/hooks/useInventory";
 import { 
   Plus, 
   Search, 
@@ -31,18 +31,6 @@ import {
   Upload,
   AlertTriangle
 } from "lucide-react";
-
-interface InventoryItem {
-  id: string;
-  name: string;
-  sku: string;
-  category: string;
-  quantity: number;
-  minQuantity: number;
-  price: number;
-  supplier: string;
-  lastUpdated: string;
-}
 
 interface InventoryManagementProps {
   inventoryData: InventoryItem[];
@@ -63,105 +51,81 @@ export const InventoryManagement = ({
   const [formData, setFormData] = useState({
     name: "",
     sku: "",
-    category: "",
+    category_id: "",
     quantity: "",
-    minQuantity: "",
+    min_quantity: "",
     price: "",
-    supplier: ""
+    supplier_id: "",
+    description: ""
   });
-  const { toast } = useToast();
-
-  const categories = [...new Set(inventoryData.map(item => item.category))];
   
-  const filteredItems = inventoryData.filter(item => {
+  const { items, categories, suppliers, addItem, updateItem, deleteItem } = useInventory();
+
+  const categoriesList = categories.map(cat => cat.name);
+  
+  const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.sku.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
+    const categoryName = item.category?.name || '';
+    const matchesCategory = selectedCategory === "all" || categoryName === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
     if (!formData.name || !formData.sku || !formData.quantity || !formData.price) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
       return;
     }
 
-    const newItem: InventoryItem = {
-      id: Date.now().toString(),
+    const newItem = {
       name: formData.name,
       sku: formData.sku,
-      category: formData.category || "General",
+      category_id: formData.category_id || null,
+      supplier_id: formData.supplier_id || null,
       quantity: parseInt(formData.quantity),
-      minQuantity: parseInt(formData.minQuantity) || 10,
+      min_quantity: parseInt(formData.min_quantity) || 10,
       price: parseFloat(formData.price),
-      supplier: formData.supplier || "Unknown",
-      lastUpdated: new Date().toISOString().split('T')[0]
+      description: formData.description || null
     };
 
-    onUpdateInventory([...inventoryData, newItem]);
-    setIsAddDialogOpen(false);
-    resetForm();
-    toast({
-      title: "Item Added",
-      description: `${newItem.name} has been successfully added to inventory`,
-    });
+    const result = await addItem(newItem);
+    if (result.success) {
+      setIsAddDialogOpen(false);
+      resetForm();
+    }
   };
 
-  const handleEditItem = () => {
+  const handleEditItem = async () => {
     if (!editingItem || !formData.name || !formData.quantity || !formData.price) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
       return;
     }
 
-    const updatedItem: InventoryItem = {
-      ...editingItem,
+    const updates = {
       name: formData.name,
-      category: formData.category || editingItem.category,
+      category_id: formData.category_id || editingItem.category_id,
+      supplier_id: formData.supplier_id || editingItem.supplier_id,
       quantity: parseInt(formData.quantity),
-      minQuantity: parseInt(formData.minQuantity) || editingItem.minQuantity,
+      min_quantity: parseInt(formData.min_quantity) || editingItem.min_quantity,
       price: parseFloat(formData.price),
-      supplier: formData.supplier || editingItem.supplier,
-      lastUpdated: new Date().toISOString().split('T')[0]
+      description: formData.description || editingItem.description
     };
 
-    const updatedItems = inventoryData.map(item => 
-      item.id === editingItem.id ? updatedItem : item
-    );
-    
-    onUpdateInventory(updatedItems);
-    setIsEditDialogOpen(false);
-    setEditingItem(null);
-    resetForm();
-    toast({
-      title: "Item Updated",
-      description: `${updatedItem.name} has been successfully updated`,
-    });
+    const result = await updateItem(editingItem.id, updates);
+    if (result.success) {
+      setIsEditDialogOpen(false);
+      setEditingItem(null);
+      resetForm();
+    }
   };
 
-  const handleDeleteItem = (itemId: string) => {
+  const handleDeleteItem = async (itemId: string) => {
     if (userRole !== 'admin') {
-      toast({
-        title: "Access Denied",
-        description: "Only administrators can delete items",
-        variant: "destructive",
-      });
       return;
     }
 
-    const updatedItems = inventoryData.filter(item => item.id !== itemId);
-    onUpdateInventory(updatedItems);
-    toast({
-      title: "Item Deleted",
-      description: "Item has been successfully removed from inventory",
-    });
+    const result = await deleteItem(itemId);
+    if (result.success) {
+      // Item deleted successfully
+    }
   };
 
   const openEditDialog = (item: InventoryItem) => {
@@ -169,11 +133,12 @@ export const InventoryManagement = ({
     setFormData({
       name: item.name,
       sku: item.sku,
-      category: item.category,
+      category_id: item.category_id || "",
       quantity: item.quantity.toString(),
-      minQuantity: item.minQuantity.toString(),
+      min_quantity: item.min_quantity.toString(),
       price: item.price.toString(),
-      supplier: item.supplier
+      supplier_id: item.supplier_id || "",
+      description: item.description || ""
     });
     setIsEditDialogOpen(true);
   };
@@ -182,11 +147,12 @@ export const InventoryManagement = ({
     setFormData({
       name: "",
       sku: "",
-      category: "",
+      category_id: "",
       quantity: "",
-      minQuantity: "",
+      min_quantity: "",
       price: "",
-      supplier: ""
+      supplier_id: "",
+      description: ""
     });
   };
 
@@ -196,12 +162,12 @@ export const InventoryManagement = ({
       ...filteredItems.map(item => [
         item.name,
         item.sku,
-        item.category,
+        item.category?.name || 'N/A',
         item.quantity.toString(),
-        item.minQuantity.toString(),
+        item.min_quantity.toString(),
         item.price.toString(),
-        item.supplier,
-        item.lastUpdated
+        item.supplier?.name || 'N/A',
+        new Date(item.updated_at).toLocaleDateString()
       ])
     ].map(row => row.join(',')).join('\n');
 
@@ -212,19 +178,14 @@ export const InventoryManagement = ({
     a.download = 'inventory-export.csv';
     a.click();
     window.URL.revokeObjectURL(url);
-
-    toast({
-      title: "Export Complete",
-      description: "Inventory data has been exported to CSV",
-    });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Inventory Management</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">Inventory Management</h2>
+          <p className="text-muted-foreground font-medium">
             Manage your product inventory and stock levels
           </p>
         </div>
@@ -262,13 +223,13 @@ export const InventoryManagement = ({
               </div>
             </div>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-48">
+              <SelectTrigger className="w-full sm:w-48 font-medium">
                 <SelectValue placeholder="Filter by category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category} value={category}>
+                <SelectItem value="all" className="font-medium">All Categories</SelectItem>
+                {categoriesList.map(category => (
+                  <SelectItem key={category} value={category} className="font-medium">
                     {category}
                   </SelectItem>
                 ))}
@@ -281,8 +242,8 @@ export const InventoryManagement = ({
       {/* Inventory Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Inventory Items ({filteredItems.length})</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-xl font-bold">Inventory Items ({filteredItems.length})</CardTitle>
+          <CardDescription className="font-medium">
             Current stock levels and product information
           </CardDescription>
         </CardHeader>
@@ -291,14 +252,14 @@ export const InventoryManagement = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>SKU</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Stock</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Supplier</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="font-semibold">Product</TableHead>
+                  <TableHead className="font-semibold">SKU</TableHead>
+                  <TableHead className="font-semibold">Category</TableHead>
+                  <TableHead className="font-semibold">Stock</TableHead>
+                  <TableHead className="font-semibold">Price</TableHead>
+                  <TableHead className="font-semibold">Supplier</TableHead>
+                  <TableHead className="font-semibold">Status</TableHead>
+                  <TableHead className="font-semibold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -308,31 +269,31 @@ export const InventoryManagement = ({
                       <div>
                         <p className="font-medium">{item.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          Updated: {item.lastUpdated}
+                          Updated: {new Date(item.updated_at).toLocaleDateString()}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell className="font-mono text-sm">{item.sku}</TableCell>
-                    <TableCell>{item.category}</TableCell>
+                    <TableCell>{item.category?.name || 'N/A'}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <span className="font-medium">{item.quantity}</span>
-                        {item.quantity < item.minQuantity && (
+                        {item.quantity < item.min_quantity && (
                           <AlertTriangle className="h-4 w-4 text-warning" />
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Min: {item.minQuantity}
+                        Min: {item.min_quantity}
                       </p>
                     </TableCell>
                     <TableCell>${item.price.toFixed(2)}</TableCell>
-                    <TableCell>{item.supplier}</TableCell>
+                    <TableCell>{item.supplier?.name || 'N/A'}</TableCell>
                     <TableCell>
                       <Badge 
-                        variant={item.quantity < item.minQuantity ? "destructive" : "secondary"}
-                        className={item.quantity >= item.minQuantity ? "bg-success/10 text-success hover:bg-success/20" : ""}
+                        variant={item.quantity < item.min_quantity ? "destructive" : "secondary"}
+                        className={item.quantity >= item.min_quantity ? "bg-success/10 text-success hover:bg-success/20" : ""}
                       >
-                        {item.quantity < item.minQuantity ? "Low Stock" : "In Stock"}
+                        {item.quantity < item.min_quantity ? "Low Stock" : "In Stock"}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -368,14 +329,14 @@ export const InventoryManagement = ({
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add New Item</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-xl font-bold">Add New Item</DialogTitle>
+            <DialogDescription className="font-medium">
               Add a new product to the inventory system
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Product Name *</Label>
+              <Label htmlFor="name" className="font-semibold">Product Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -384,7 +345,7 @@ export const InventoryManagement = ({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="sku">SKU *</Label>
+              <Label htmlFor="sku" className="font-semibold">SKU *</Label>
               <Input
                 id="sku"
                 value={formData.sku}
@@ -393,17 +354,23 @@ export const InventoryManagement = ({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="category">Category</Label>
-              <Input
-                id="category"
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                placeholder="Enter category"
-              />
+              <Label htmlFor="category" className="font-semibold">Category</Label>
+              <Select value={formData.category_id} onValueChange={(value) => setFormData({ ...formData, category_id: value })}>
+                <SelectTrigger className="font-medium">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(category => (
+                    <SelectItem key={category.id} value={category.id} className="font-medium">
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div className="grid gap-2">
-                <Label htmlFor="quantity">Quantity *</Label>
+                <Label htmlFor="quantity" className="font-semibold">Quantity *</Label>
                 <Input
                   id="quantity"
                   type="number"
@@ -413,7 +380,7 @@ export const InventoryManagement = ({
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="minQuantity">Min Quantity</Label>
+                <Label htmlFor="minQuantity" className="font-semibold">Min Quantity</Label>
                 <Input
                   id="minQuantity"
                   type="number"
@@ -424,7 +391,7 @@ export const InventoryManagement = ({
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="price">Price *</Label>
+              <Label htmlFor="price" className="font-semibold">Price *</Label>
               <Input
                 id="price"
                 type="number"
@@ -435,12 +402,27 @@ export const InventoryManagement = ({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="supplier">Supplier</Label>
+              <Label htmlFor="supplier" className="font-semibold">Supplier</Label>
+              <Select value={formData.supplier_id} onValueChange={(value) => setFormData({ ...formData, supplier_id: value })}>
+                <SelectTrigger className="font-medium">
+                  <SelectValue placeholder="Select supplier" />
+                </SelectTrigger>
+                <SelectContent>
+                  {suppliers.map(supplier => (
+                    <SelectItem key={supplier.id} value={supplier.id} className="font-medium">
+                      {supplier.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="description" className="font-semibold">Description</Label>
               <Input
-                id="supplier"
-                value={formData.supplier}
-                onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-                placeholder="Enter supplier name"
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Enter description"
               />
             </div>
           </div>
@@ -457,14 +439,14 @@ export const InventoryManagement = ({
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Item</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-xl font-bold">Edit Item</DialogTitle>
+            <DialogDescription className="font-medium">
               Update product information
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="edit-name">Product Name *</Label>
+              <Label htmlFor="edit-name" className="font-semibold">Product Name *</Label>
               <Input
                 id="edit-name"
                 value={formData.name}
@@ -473,17 +455,23 @@ export const InventoryManagement = ({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="edit-category">Category</Label>
-              <Input
-                id="edit-category"
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                placeholder="Enter category"
-              />
+              <Label htmlFor="edit-category" className="font-semibold">Category</Label>
+              <Select value={formData.category_id} onValueChange={(value) => setFormData({ ...formData, category_id: value })}>
+                <SelectTrigger className="font-medium">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(category => (
+                    <SelectItem key={category.id} value={category.id} className="font-medium">
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div className="grid gap-2">
-                <Label htmlFor="edit-quantity">Quantity *</Label>
+                <Label htmlFor="edit-quantity" className="font-semibold">Quantity *</Label>
                 <Input
                   id="edit-quantity"
                   type="number"
@@ -493,7 +481,7 @@ export const InventoryManagement = ({
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="edit-minQuantity">Min Quantity</Label>
+                <Label htmlFor="edit-minQuantity" className="font-semibold">Min Quantity</Label>
                 <Input
                   id="edit-minQuantity"
                   type="number"
@@ -504,7 +492,7 @@ export const InventoryManagement = ({
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="edit-price">Price *</Label>
+              <Label htmlFor="edit-price" className="font-semibold">Price *</Label>
               <Input
                 id="edit-price"
                 type="number"
@@ -515,12 +503,27 @@ export const InventoryManagement = ({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="edit-supplier">Supplier</Label>
+              <Label htmlFor="edit-supplier" className="font-semibold">Supplier</Label>
+              <Select value={formData.supplier_id} onValueChange={(value) => setFormData({ ...formData, supplier_id: value })}>
+                <SelectTrigger className="font-medium">
+                  <SelectValue placeholder="Select supplier" />
+                </SelectTrigger>
+                <SelectContent>
+                  {suppliers.map(supplier => (
+                    <SelectItem key={supplier.id} value={supplier.id} className="font-medium">
+                      {supplier.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-description" className="font-semibold">Description</Label>
               <Input
-                id="edit-supplier"
-                value={formData.supplier}
-                onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-                placeholder="Enter supplier name"
+                id="edit-description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Enter description"
               />
             </div>
           </div>

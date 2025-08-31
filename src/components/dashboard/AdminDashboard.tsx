@@ -88,8 +88,8 @@ export const AdminDashboard = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Admin Dashboard</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-3xl font-bold tracking-tight text-foreground">Admin Dashboard</h2>
+        <p className="text-muted-foreground font-medium">
           Overview of your inventory management system
         </p>
       </div>

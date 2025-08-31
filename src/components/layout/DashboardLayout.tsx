@@ -68,7 +68,7 @@ export const DashboardLayout = ({
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <Package className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="text-lg font-semibold">LogistX</span>
+            <span className="text-lg font-bold text-foreground">LogistX</span>
           </div>
           <Button
             variant="ghost"
@@ -88,8 +88,8 @@ export const DashboardLayout = ({
                 key={item.id}
                 variant={currentPage === item.id ? "secondary" : "ghost"}
                 className={cn(
-                  "w-full justify-start",
-                  currentPage === item.id && "bg-primary/10 text-primary hover:bg-primary/20"
+                  "w-full justify-start font-medium",
+                  currentPage === item.id && "bg-primary/10 text-primary hover:bg-primary/20 font-semibold"
                 )}
                 onClick={() => {
                   onNavigate(item.id);
@@ -111,8 +111,8 @@ export const DashboardLayout = ({
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user.name}</p>
-              <p className="text-xs text-muted-foreground truncate capitalize">{user.role}</p>
+              <p className="text-sm font-semibold truncate text-foreground">{user.name}</p>
+              <p className="text-xs text-muted-foreground truncate capitalize font-medium">{user.role}</p>
             </div>
           </div>
           <Button 
@@ -139,11 +139,11 @@ export const DashboardLayout = ({
           >
             <Menu className="h-4 w-4" />
           </Button>
-          <h1 className="text-lg font-semibold capitalize">
+          <h1 className="text-xl font-bold capitalize text-foreground">
             {currentPage === 'dashboard' ? `${user.role} Dashboard` : currentPage}
           </h1>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground hidden sm:inline">
+            <span className="text-sm text-muted-foreground hidden sm:inline font-medium">
               Welcome, {user.name}
             </span>
           </div>

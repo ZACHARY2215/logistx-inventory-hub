@@ -52,7 +52,7 @@ export const useInventory = () => {
 
       if (error) throw error;
       setItems(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Failed to fetch inventory items');
       console.error('Error fetching items:', error);
     }
@@ -67,7 +67,7 @@ export const useInventory = () => {
 
       if (error) throw error;
       setCategories(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Failed to fetch categories');
       console.error('Error fetching categories:', error);
     }
@@ -82,7 +82,7 @@ export const useInventory = () => {
 
       if (error) throw error;
       setSuppliers(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Failed to fetch suppliers');
       console.error('Error fetching suppliers:', error);
     }
@@ -109,9 +109,10 @@ export const useInventory = () => {
       toast.success('Item added successfully!');
       await fetchItems();
       return { success: true };
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to add item');
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to add item';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -127,9 +128,10 @@ export const useInventory = () => {
       toast.success('Item updated successfully!');
       await fetchItems();
       return { success: true };
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update item');
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update item';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -145,9 +147,10 @@ export const useInventory = () => {
       toast.success('Item deleted successfully!');
       await fetchItems();
       return { success: true };
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to delete item');
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete item';
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 

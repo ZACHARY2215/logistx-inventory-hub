@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Package } from "lucide-react";
 
 interface LoginFormProps {
@@ -14,38 +13,25 @@ interface LoginFormProps {
 export const LoginForm = ({ onLogin }: LoginFormProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<'admin' | 'staff'>('admin');
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  // Mock users for demo
-  const mockUsers = {
-    admin: { id: '1', email: 'admin@logistx.com', password: 'admin123', name: 'John Admin', role: 'admin' as const },
-    staff: { id: '2', email: 'staff@logistx.com', password: 'staff123', name: 'Jane Staff', role: 'staff' as const }
-  };
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      const user = mockUsers[role];
-      if (email === user.email && password === user.password) {
-        toast({
-          title: "Login successful",
-          description: `Welcome back, ${user.name}!`,
-        });
-        onLogin(user);
-      } else {
-        toast({
-          title: "Login failed",
-          description: "Invalid credentials. Try admin@logistx.com/admin123 or staff@logistx.com/staff123",
-          variant: "destructive",
-        });
+    try {
+      const result = await signIn(email, password);
+      if (result.success) {
+        // The useAuth hook will handle the login state
+        // We'll get the user data from the auth context
+        onLogin({ id: '', email, role: 'admin', name: email }); // This will be updated by the auth hook
       }
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -64,18 +50,6 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Select value={role} onValueChange={(value: 'admin' | 'staff') => setRole(value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">Administrator</SelectItem>
-                  <SelectItem value="staff">Staff Member</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -103,9 +77,7 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
             </Button>
           </form>
           <div className="mt-4 text-sm text-muted-foreground text-center">
-            <p>Demo Accounts:</p>
-            <p>Admin: admin@logistx.com / admin123</p>
-            <p>Staff: staff@logistx.com / staff123</p>
+            <p className="font-medium">Contact your administrator for login credentials</p>
           </div>
         </CardContent>
       </Card>
