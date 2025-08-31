@@ -43,6 +43,8 @@ export const InventoryManagement = ({
   onUpdateInventory, 
   userRole 
 }: InventoryManagementProps) => {
+  // Add error boundary
+  try {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -59,18 +61,35 @@ export const InventoryManagement = ({
     description: ""
   });
   
-  const { items, categories, suppliers, addItem, updateItem, deleteItem } = useInventory();
+  const { items, categories, suppliers, loading, addItem, updateItem, deleteItem } = useInventory();
 
-  const categoriesList = categories.map(cat => ({ id: cat.id, name: cat.name }));
-  const suppliersList = suppliers.map(sup => ({ id: sup.id, name: sup.name }));
+  // Use the data passed from parent or fallback to hook data
+  const displayItems = inventoryData?.length > 0 ? inventoryData : items;
+  const displayCategories = categories || [];
+  const displaySuppliers = suppliers || [];
+
+  const categoriesList = displayCategories.map(cat => ({ id: cat.id, name: cat.name }));
+  const suppliersList = displaySuppliers.map(sup => ({ id: sup.id, name: sup.name }));
   
-  const filteredItems = items.filter(item => {
+  const filteredItems = displayItems.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const categoryName = item.category?.name || '';
     const matchesCategory = selectedCategory === "all" || categoryName === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // Show loading state while data is being fetched
+  if (loading && displayItems.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading inventory...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleAddItem = async () => {
     if (!formData.name || !formData.sku || !formData.quantity || !formData.price) {
@@ -361,7 +380,7 @@ export const InventoryManagement = ({
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map(category => (
+                  {displayCategories.map(category => (
                     <SelectItem key={category.id} value={category.id} className="font-medium">
                       {category.name}
                     </SelectItem>
@@ -409,7 +428,7 @@ export const InventoryManagement = ({
                   <SelectValue placeholder="Select supplier" />
                 </SelectTrigger>
                 <SelectContent>
-                  {suppliers.map(supplier => (
+                  {displaySuppliers.map(supplier => (
                     <SelectItem key={supplier.id} value={supplier.id} className="font-medium">
                       {supplier.name}
                     </SelectItem>
@@ -538,4 +557,23 @@ export const InventoryManagement = ({
       </Dialog>
     </div>
   );
+  } catch (error) {
+    console.error('InventoryManagement component error:', error);
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">⚠️</div>
+          <h3 className="text-lg font-semibold mb-2">Something went wrong</h3>
+          <p className="text-muted-foreground">Please try refreshing the page</p>
+          <Button 
+            variant="outline" 
+            className="mt-4"
+            onClick={() => window.location.reload()}
+          >
+            Refresh Page
+          </Button>
+        </div>
+      </div>
+    );
+  }
 };
