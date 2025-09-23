@@ -305,7 +305,7 @@ export const InventoryManagement = ({
                         Min: {item.min_quantity}
                       </p>
                     </TableCell>
-                    <TableCell>${item.price.toFixed(2)}</TableCell>
+                    <TableCell>₱{item.price.toFixed(2)}</TableCell>
                     <TableCell>{item.supplier?.name || 'N/A'}</TableCell>
                     <TableCell>
                       <Badge 

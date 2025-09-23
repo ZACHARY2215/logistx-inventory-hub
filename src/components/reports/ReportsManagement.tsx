@@ -144,8 +144,8 @@ export const ReportsManagement = ({ userRole }: ReportsManagementProps) => {
           'Supplier': item.supplier?.name || 'N/A',
           'Quantity': item.quantity,
           'Min Quantity': item.min_quantity,
-          'Price': `$${item.price.toFixed(2)}`,
-          'Total Value': `$${(item.quantity * item.price).toFixed(2)}`,
+          'Price': `₱${item.price.toFixed(2)}`,
+          'Total Value': `₱${(item.quantity * item.price).toFixed(2)}`,
           'Status': item.quantity < item.min_quantity ? 'Low Stock' : 'In Stock',
           'Last Updated': new Date(item.updated_at).toLocaleDateString()
         }));
@@ -158,7 +158,7 @@ export const ReportsManagement = ({ userRole }: ReportsManagementProps) => {
           'Current Stock': item.quantity,
           'Min Required': item.min_quantity,
           'Shortage': item.min_quantity - item.quantity,
-          'Price': `$${item.price.toFixed(2)}`,
+          'Price': `₱${item.price.toFixed(2)}`,
           'Supplier': item.supplier?.name || 'N/A',
           'Last Updated': new Date(item.updated_at).toLocaleDateString()
         }));
@@ -171,8 +171,8 @@ export const ReportsManagement = ({ userRole }: ReportsManagementProps) => {
             'SKU': item.sku,
             'Category': item.category?.name || 'N/A',
             'Quantity': item.quantity,
-            'Unit Price': `$${item.price.toFixed(2)}`,
-            'Total Value': `$${(item.quantity * item.price).toFixed(2)}`,
+            'Unit Price': `₱${item.price.toFixed(2)}`,
+            'Total Value': `₱${(item.quantity * item.price).toFixed(2)}`,
             'Percentage of Total': `${((item.quantity * item.price) / totalValue * 100).toFixed(1)}%`
           }));
       
@@ -241,7 +241,7 @@ export const ReportsManagement = ({ userRole }: ReportsManagementProps) => {
     },
     {
       title: "Total Inventory Value",
-      value: `$${totalValue.toLocaleString()}`,
+      value: `₱${totalValue.toLocaleString()}`,
       icon: TrendingUp,
       color: "text-success"
     }

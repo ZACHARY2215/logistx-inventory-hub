@@ -91,7 +91,7 @@ export const AnalyticsDashboard = ({ userRole }: AnalyticsDashboardProps) => {
   const exportData = () => {
     const csvContent = [
       ['Metric', 'Value'],
-      ['Total Inventory Value', `$${totalValue.toLocaleString()}`],
+      ['Total Inventory Value', `₱${totalValue.toLocaleString()}`],
       ['Total Items', items.length.toString()],
       ['Low Stock Items', lowStockItems.length.toString()],
       ['Total Users', totalUsers.toString()],
@@ -144,7 +144,7 @@ export const AnalyticsDashboard = ({ userRole }: AnalyticsDashboardProps) => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalValue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">₱{totalValue.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
               <span className="text-green-600">+12.5%</span> from last month
             </p>
@@ -204,7 +204,7 @@ export const AnalyticsDashboard = ({ userRole }: AnalyticsDashboardProps) => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip formatter={(value) => [`$${value}`, 'Value']} />
+                <Tooltip formatter={(value) => [`₱${value}`, 'Value']} />
                 <Legend />
                 <Bar dataKey="value" fill="#3b82f6" />
               </BarChart>
@@ -224,7 +224,7 @@ export const AnalyticsDashboard = ({ userRole }: AnalyticsDashboardProps) => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip formatter={(value) => [`$${value}`, 'Value']} />
+                <Tooltip formatter={(value) => [`₱${value}`, 'Value']} />
                 <Legend />
                 <Line type="monotone" dataKey="inventory" stroke="#3b82f6" strokeWidth={2} />
                 <Line type="monotone" dataKey="transactions" stroke="#10b981" strokeWidth={2} />
@@ -253,7 +253,7 @@ export const AnalyticsDashboard = ({ userRole }: AnalyticsDashboardProps) => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">${product.value.toLocaleString()}</p>
+                    <p className="font-semibold">₱{product.value.toLocaleString()}</p>
                   </div>
                 </div>
               ))}

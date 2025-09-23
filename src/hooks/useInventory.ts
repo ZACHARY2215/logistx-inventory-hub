@@ -26,6 +26,18 @@ const getDemoCategories = (): Category[] => [
     name: 'Electronics', 
     description: 'Electronic devices and components',
     created_at: new Date().toISOString()
+  },
+  { 
+    id: 'demo-cat-2', 
+    name: 'Office Supplies', 
+    description: 'Office equipment and supplies',
+    created_at: new Date().toISOString()
+  },
+  { 
+    id: 'demo-cat-3', 
+    name: 'Other', 
+    description: 'Miscellaneous items that don\'t fit other categories',
+    created_at: new Date().toISOString()
   }
 ];
 
