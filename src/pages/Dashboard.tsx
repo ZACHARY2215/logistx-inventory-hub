@@ -7,6 +7,7 @@ import { ReportsManagement } from "@/components/reports/ReportsManagement";
 import { UserManagement } from "@/components/users/UserManagement";
 import { OrdersManagement } from "@/components/orders/OrdersManagement";
 import { AnalyticsDashboard } from "@/components/analytics/AnalyticsDashboard";
+import { SuppliersManagement } from "@/components/suppliers/SuppliersManagement";
 import { useInventory } from "@/hooks/useInventory";
 
 interface User {
@@ -46,6 +47,10 @@ export const Dashboard = ({ user, onLogout }: DashboardProps) => {
             onUpdateInventory={() => {}} // This will be handled by the useInventory hook
             userRole={user.role}
           />
+        );
+      case 'suppliers':
+        return (
+          <SuppliersManagement userRole={user.role} />
         );
       case 'orders':
         return (

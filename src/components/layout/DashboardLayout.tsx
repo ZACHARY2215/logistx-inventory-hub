@@ -11,7 +11,8 @@ import {
   X,
   Home,
   ShoppingCart,
-  FileText
+  FileText,
+  Building2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +43,7 @@ export const DashboardLayout = ({
   const adminNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'inventory', label: 'Inventory', icon: Package },
+    { id: 'suppliers', label: 'Suppliers', icon: Building2 },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'users', label: 'Users', icon: Users },
@@ -51,6 +53,7 @@ export const DashboardLayout = ({
   const staffNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'inventory', label: 'Inventory', icon: Package },
+    { id: 'suppliers', label: 'Suppliers', icon: Building2 },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
   ];
 
