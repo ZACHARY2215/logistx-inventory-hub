@@ -5,7 +5,6 @@ import {
   Package, 
   BarChart3, 
   Users, 
-  Settings, 
   LogOut, 
   Menu,
   X,
@@ -15,6 +14,7 @@ import {
   Building2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/components/help/HelpButton";
 
 interface User {
   id: string;
@@ -149,6 +149,7 @@ export const DashboardLayout = ({
             <span className="text-sm text-muted-foreground hidden sm:inline font-medium">
               Welcome, {user.name}
             </span>
+            <HelpButton />
           </div>
         </header>
 
