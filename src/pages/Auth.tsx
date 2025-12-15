@@ -5,10 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Eye, EyeOff, Loader2, LogIn, UserPlus } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Loader2, LogIn, UserPlus, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 const Auth = () => {
   const { signIn, signUp, loading, isAuthenticated } = useAuth();
@@ -310,7 +311,7 @@ const Auth = () => {
         </Card>
 
         {/* Back to landing */}
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 flex flex-col gap-2">
           <Button
             variant="ghost"
             onClick={() => window.location.href = '/'}
@@ -319,6 +320,12 @@ const Auth = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Button>
+          <Link to="/docs">
+            <Button variant="link" className="text-muted-foreground">
+              <HelpCircle className="mr-2 h-4 w-4" />
+              View Documentation
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
